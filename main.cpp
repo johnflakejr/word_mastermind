@@ -1,10 +1,23 @@
 #include <iostream>
-#include <curl/curl.h>
+#include <sstream>
+#include <curlpp/cURLpp.hpp>
+#include <curlpp/Options.hpp>
 
 using namespace std;
 
 string getRandomString() {
-    return "donut";
+    
+    curlpp::Cleanup myCleanup;
+
+    ostringstream os;
+    string url = "https://random-word-api.herokuapp.com/word?number=1";
+    os << curlpp::options::Url(url);
+    string stringToGuess = os.str();
+
+    //Discard [" and "] from API results:
+    int len = stringToGuess.length();
+    stringToGuess = stringToGuess.substr(2, len - 4);
+    return stringToGuess;
 }
 
 void showDifferences(string guess, string correctString) {
@@ -29,7 +42,6 @@ void showDifferences(string guess, string correctString) {
 
 bool makeGuess(string correctString) {
     string guess;
-    cout << "Make a guess." << endl;
     cin >> guess;
 
     if (guess == correctString){
@@ -41,15 +53,26 @@ bool makeGuess(string correctString) {
     }
 }
 
-int main() {
-    string stringToGuess = getRandomString();
-    cout << "Size of the correct string is: " << stringToGuess.length() << endl;
-    int numGuesses = 5;
+void printCharFillIn(int len) {
+    for (int i = 0; i < len; i++) {
+        cout << "#";
+    }
+    cout << endl;
+}
 
-    for (int i = numGuesses; i > 0; i--) {
+int main() {
+
+    string stringToGuess = getRandomString();
+    int len = stringToGuess.length();
+
+    printCharFillIn(len);
+
+
+    for (int i = len; i > 0; i--) {
         if (makeGuess(stringToGuess)){
             break;
         }
     }
+
     cout << "Game Over." << endl;
 }
